@@ -11,3 +11,8 @@ router.post(
 );
 
 module.exports = router;
+
+/**
+ * sequelize hook
+ * salt_rounds in bcrypt
+ */

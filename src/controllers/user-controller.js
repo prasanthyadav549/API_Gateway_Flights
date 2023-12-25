@@ -20,6 +20,25 @@ async function signUp(req, res) {
   }
 }
 
+/**
+ * POST: /signin
+ * body: {email: 'abc@example.com', password: '1234'}
+ */
+async function signIn(req, res) {
+  try {
+    const response = await UserService.signIn({
+      email: req.body.email,
+      password: req.body.password,
+    });
+    SuccessResponse.data = response;
+    return res.status(StatusCodes.CREATED).json(SuccessResponse);
+  } catch (error) {
+    ErrorResponse.error = error;
+    return res.status(error.statusCode).json(ErrorResponse);
+  }
+}
+
 module.exports = {
   signUp,
+  signIn,
 };

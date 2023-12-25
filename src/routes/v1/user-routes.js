@@ -1,18 +1,20 @@
 const express = require("express");
 const { UserController } = require("../../controllers");
-const { SignupMiddlewares } = require("../../middlewares");
+const { AuthMiddlewares } = require("../../middlewares");
 
 const router = express.Router();
-// /api/v1/signup POST
+// /api/v1/user/signup POST
 router.post(
-  "/",
-  SignupMiddlewares.validateSignupRequest,
+  "/signup",
+  AuthMiddlewares.validateAuthRequest,
   UserController.signUp
 );
 
-module.exports = router;
+// /api/v1/user/singin POST
+router.post(
+  "/signin",
+  AuthMiddlewares.validateAuthRequest,
+  UserController.signIn
+);
 
-/**
- * sequelize hook
- * salt_rounds in bcrypt
- */
+module.exports = router;

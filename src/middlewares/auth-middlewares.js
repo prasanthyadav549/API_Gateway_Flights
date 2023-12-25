@@ -1,8 +1,9 @@
 const { StatusCodes } = require("http-status-codes");
 const { ErrorResponse } = require("../utils/common");
 const { AppError } = require("../utils/errors");
+const { UserService } = require("../services");
 
-async function validateSignupRequest(req, res, next) {
+async function validateAuthRequest(req, res, next) {
   if (!req.body.email) {
     ErrorResponse.message = "something went wrong while signing up";
     ErrorResponse.error = new AppError(
@@ -22,6 +23,23 @@ async function validateSignupRequest(req, res, next) {
   next();
 }
 
+async function validateAuth(req, res, next) {
+  try {
+    const response = await UserService.isAuthenticated(
+      req.headers["x-access-token"]
+    );
+    if (response) {
+      req.userId = response;
+      next();
+    }
+  } catch (error) {
+    console.log("error in verifying Auth", error);
+    ErrorResponse.error = error;
+    return res.status(error.statusCode).json(ErrorResponse);
+  }
+}
+
 module.exports = {
-  validateSignupRequest,
+  validateAuthRequest,
+  validateAuth,
 };

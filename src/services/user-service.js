@@ -8,7 +8,7 @@ const { JWT_SECRET } = require("../config/server-config");
 
 const userRepository = new UserRepository();
 const roleRepository = new RoleRepository();
-const { CUSTOMER } = Enums.USER_ROLES_ENUMS;
+const { CUSTOMER, ADMIN } = Enums.USER_ROLES_ENUMS;
 
 async function createUser(data) {
   try {
@@ -87,8 +87,59 @@ async function isAuthenticated(token) {
     );
   }
 }
+
+async function addRoleToUser(data) {
+  try {
+    const user = await userRepository.get(data.id);
+    if (!user) {
+      throw new AppError(
+        "no user found with the given id",
+        StatusCodes.NOT_FOUND
+      );
+    }
+    const adminRole = await roleRepository.getRoleByName(data.role);
+    if (!adminRole) {
+      throw new AppError(
+        "No user found with the given role",
+        StatusCodes.NOT_FOUND
+      );
+    }
+    user.addRole(adminRole);
+    return user;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError(
+      "something went wrong",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
+}
+
+async function isAdmin(id) {
+  try {
+    const user = await userRepository.get(id);
+    if (!user) {
+      throw new AppError(
+        "no user found with the given id",
+        StatusCodes.NOT_FOUND
+      );
+    }
+    const adminRole = await roleRepository.getRoleByName(ADMIN);
+    if (!adminRole) {
+      throw new AppError(
+        "No user found with the given role",
+        StatusCodes.NOT_FOUND
+      );
+    }
+    return user.hasRole(adminRole);
+  } catch (error) {}
+}
 module.exports = {
   createUser,
   signIn,
   isAuthenticated,
+  addRoleToUser,
+  isAdmin,
 };

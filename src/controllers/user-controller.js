@@ -1,4 +1,4 @@
-const { StatusCodes } = require("http-status-codes");
+const { StatusCodes, CREATED } = require("http-status-codes");
 const { ErrorResponse, SuccessResponse } = require("../utils/common");
 const { UserService } = require("../services");
 
@@ -38,7 +38,22 @@ async function signIn(req, res) {
   }
 }
 
+async function addRoleToUser(req, res) {
+  try {
+    const user = await UserService.addRoleToUser({
+      id: req.body.id,
+      role: req.body.role,
+    });
+    SuccessResponse.data = user;
+    return res.status(StatusCodes.CREATED).json(SuccessResponse);
+  } catch (error) {
+    ErrorResponse.error = error;
+    return res.status(error.statusCode).json(ErrorResponse);
+  }
+}
+
 module.exports = {
   signUp,
   signIn,
+  addRoleToUser,
 };

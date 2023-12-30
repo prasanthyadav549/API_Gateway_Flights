@@ -23,7 +23,7 @@ async function validateAuthRequest(req, res, next) {
   next();
 }
 
-async function validateAuth(req, res, next) {
+async function checkAuth(req, res, next) {
   try {
     const response = await UserService.isAuthenticated(
       req.headers["x-access-token"]
@@ -39,7 +39,24 @@ async function validateAuth(req, res, next) {
   }
 }
 
+async function isAdmin(req, res, next) {
+  try {
+    const admin = await UserService.isAdmin(req.userId);
+    if (!admin) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: "User not Authorized for this action" });
+    }
+    next();
+  } catch (error) {
+    return res
+      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(error);
+  }
+}
+
 module.exports = {
   validateAuthRequest,
-  validateAuth,
+  checkAuth: checkAuth,
+  isAdmin,
 };

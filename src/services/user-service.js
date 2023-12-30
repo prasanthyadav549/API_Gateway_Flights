@@ -1,15 +1,21 @@
-const { UserRepository } = require("../repositories");
+const { UserRepository, RoleRepository } = require("../repositories");
 const { AppError } = require("../utils/errors");
 const { StatusCodes } = require("http-status-codes");
-const { Auth } = require("../utils/common");
+const { Auth, Enums } = require("../utils/common");
 const { ServerConfig } = require("../config");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config/server-config");
+
 const userRepository = new UserRepository();
+const roleRepository = new RoleRepository();
+const { CUSTOMER } = Enums.USER_ROLES_ENUMS;
 
 async function createUser(data) {
   try {
     const user = await userRepository.create(data);
+    const role = await roleRepository.getRoleByName(CUSTOMER);
+    console.log("role:", role);
+    user.addRole(role);
     return user;
   } catch (error) {
     console.log("error in user service create method", error);
